@@ -1,4 +1,5 @@
 
+local LibJSON = LibStub:GetLibrary("LibJSON.9000")
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local LibDropdown = LibStub:GetLibrary("LibDropdown.7000")
 
@@ -93,6 +94,8 @@ local widgets = {}
 function widgets:checkbox(parent, config, labelText)
     local frame = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
     frame.keystring = config.keystring
+    frame.tooltipText = labelText or L[config.keystring]
+    frame.Text:SetWidth(0)
     frame.Text:SetText(labelText or L[config.keystring])
     frame:SetChecked(GetVariable(config.keystring))
     frame:SetScript("OnClick", function(self) SetVariable(self.keystring, self:GetChecked()) end)
@@ -175,6 +178,9 @@ function widgets:colorpick(parent, config)
                 local r, g, b = ColorPickerFrame:GetColorRGB()
                 local a = 1-format("%.2f", OpacitySliderFrame:GetValue())
                 local aa = select(4, ColorPickerFrame.tipframe:GetNormalTexture():GetVertexColor())
+                r = tonumber(format("%.4f",r))
+                g = tonumber(format("%.4f",g))
+                b = tonumber(format("%.4f",b))
                 if (a ~= aa) then
                     ColorPickerFrame.tipframe:GetNormalTexture():SetVertexColor(r,g,b,a)
                     SetVariable(ColorPickerFrame.tipframe.keystring, {r,g,b,a})
@@ -183,6 +189,9 @@ function widgets:colorpick(parent, config)
             swatchFunc = function()
                 local r, g, b = ColorPickerFrame:GetColorRGB()
                 local a = 1-format("%.2f", OpacitySliderFrame:GetValue())
+                r = tonumber(format("%.4f",r))
+                g = tonumber(format("%.4f",g))
+                b = tonumber(format("%.4f",b))
                 ColorPickerFrame.tipframe:GetNormalTexture():SetVertexColor(r,g,b,a)
                 if (ColorPickerFrame.tipframe.colortype == "hex") then
                     SetVariable(ColorPickerFrame.tipframe.keystring, addon:GetHexColor(r,g,b))
@@ -359,24 +368,16 @@ CreateAnchorButton(saframe, "BOTTOM")
 saframe:SetScript("OnShow", function() grid:Show() end)
 saframe:SetScript("OnHide", function() grid:Hide() end)
 
-local caframe = CreateFrame("Frame", nil, UIParent, "ThinBorderTemplate" and (BackdropTemplateMixin and "BackdropTemplate" or nil))
+local caframe = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "ThinBorderTemplate,BackdropTemplate" or "ThinBorderTemplate")
 caframe:Hide()
 caframe:SetFrameStrata("DIALOG")
-if GameTooltip.NineSlice then
-    caframe:SetBackdrop({
-        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        tile = true,
-        tileEdge = true,
-        tileSize = 16,
-        edgeSize = 16,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 },
-    })
-    caframe:SetBackdropColor(GameTooltip.NineSlice:GetCenterColor())
-else
-    caframe:SetBackdrop(GameTooltip:GetBackdrop())
-    caframe:SetBackdropColor(GameTooltip:GetBackdropColor())
-end
+caframe:SetBackdrop({
+    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile = true, tileSize = 8, edgeSize = 16,
+    insets = {left = 4, right = 4, top = 4, bottom = 4}
+})
+caframe:SetBackdropColor(0.2,0.2,0.2,0.85)
 caframe:SetSize(200, 200)
 caframe:SetPoint("CENTER")
 caframe:SetClampedToScreen(true)
@@ -442,7 +443,7 @@ function widgets:anchorbutton(parent, config)
 end
 
 function widgets:element(parent, config)
-    local frame = CreateFrame("Frame", nil, parent, (BackdropTemplateMixin and "BackdropTemplate" or nil))
+    local frame = CreateFrame("Frame", nil, parent, BackdropTemplateMixin and "BackdropTemplate" or nil)
     frame:SetSize(560, 30)
     frame:SetBackdrop({
         bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -495,8 +496,8 @@ function widgets:dropdownslider(parent, config)
     frame.dropdown = self:dropdown(frame, {keystring=config.keystring..".colorfunc",dropdata=config.dropdata}, L[config.keystring])
     frame.dropdown:SetPoint("LEFT", 0, 0)
     frame.slider = self:slider(frame, {keystring=config.keystring..".alpha",min=config.min,max=config.max,step=config.step})
-    frame.slider:SetPoint("LEFT", frame.dropdown.Label, "RIGHT", 30, 0)
-    frame.slider:SetWidth(80)
+    frame.slider:SetPoint("LEFT", frame.dropdown.Label, "RIGHT", 36, 0)
+    frame.slider:SetWidth(100)
     return frame
 end
 
@@ -552,6 +553,7 @@ local options = {
         { keystring = "unit.player.elements.pvpIcon",     type = "element", filter = true, },
         { keystring = "unit.player.elements.factionIcon", type = "element", filter = true, },
         { keystring = "unit.player.elements.classIcon",   type = "element", filter = true, },
+        { keystring = "unit.player.elements.friendIcon",  type = "element", filter = true, },
         { keystring = "unit.player.elements.title",       type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.name",        type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.realm",       type = "element", color = true, wildcard = true, filter = true, },
@@ -575,6 +577,7 @@ local options = {
     npc = {
         { keystring = "unit.npc.showTarget",            type = "checkbox" },
         { keystring = "unit.npc.showTargetBy",          type = "checkbox" },
+        { keystring = "unit.npc.showModel",             type = "checkbox" },
         { keystring = "unit.npc.grayForDead",           type = "checkbox" },
         { keystring = "unit.npc.coloredBorder",         type = "dropdown", dropdata = widgets.colorDropdata },
         { keystring = "unit.npc.background",            type = "dropdownslider", dropdata = widgets.colorDropdata, min = 0, max = 1, step = 0.01 },
@@ -642,27 +645,28 @@ framePC.name = " - Player"
 framePC.diy = CreateFrame("Button", nil, framePC)
 framePC.diy:SetSize(400, 67)
 framePC.diy:SetScale(0.68)
-framePC.diy:SetPoint("TOPLEFT", 360, -100)
+framePC.diy:SetPoint("TOPLEFT", 332, -100)
 framePC.diy:SetNormalTexture("Interface\\LevelUp\\MinorTalents")
 framePC.diy:GetNormalTexture():SetTexCoord(0, 400/512, 341/512, 407/512)
 framePC.diy:GetNormalTexture():SetVertexColor(1, 1, 1, 0.8)
-framePC.diy:SetScript("OnClick", function() LibEvent:trigger("tinytooltip:diy:player", "player", true) end)
+framePC.diy:SetScript("OnClick", function() LibEvent:trigger("tinytooltip:diy:player", "player", true, true) end)
 framePC.diy.text = framePC.diy:CreateFontString(nil, "OVERLAY", "GameFont_Gigantic")
 framePC.diy.text:SetPoint("CENTER", 0, 2)
-framePC.diy.text:SetText(L.DIY)
+framePC.diy.text:SetText(L.DIY.." "..(SETTINGS or ""))
 
-framePC:SetSize(500, #options.pc*29+60)
+framePC:SetSize(500, #options.pc*30)
 local framePCScrollFrame = CreateFrame("ScrollFrame", nil, UIParent, "UIPanelScrollFrameTemplate")
 framePCScrollFrame.ScrollBar:Hide()
 framePCScrollFrame.ScrollBar:ClearAllPoints()
-framePCScrollFrame.ScrollBar:SetPoint("TOPLEFT", framePCScrollFrame, "TOPRIGHT", -20, -20)
-framePCScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", framePCScrollFrame, "BOTTOMRIGHT", -20, 20)
+framePCScrollFrame.ScrollBar:SetPoint("TOPLEFT", framePCScrollFrame, "TOPRIGHT", -20, -22)
+framePCScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", framePCScrollFrame, "BOTTOMRIGHT", -20, 26)
 framePCScrollFrame:HookScript("OnScrollRangeChanged", function(self, xrange, yrange)
     self.ScrollBar:SetShown(floor(yrange) ~= 0)
 end)
 framePCScrollFrame:SetScrollChild(framePC)
 framePCScrollFrame.parent = addonName
 framePCScrollFrame.name = " - Player"
+framePCScrollFrame:Hide()
 
 
 local frameNPC = CreateFrame("Frame", nil, UIParent)
@@ -674,6 +678,19 @@ frameNPC.title:SetPoint("TOPLEFT", 18, -16)
 frameNPC.title:SetText(format("%s |cff33eeff%s|r", addonName, "Unit Is NPC"))
 frameNPC.parent = addonName
 frameNPC.name = " - NPC"
+
+frameNPC:SetSize(500, #options.npc*30)
+local frameNPCScrollFrame = CreateFrame("ScrollFrame", nil, UIParent, "UIPanelScrollFrameTemplate")
+frameNPCScrollFrame.ScrollBar:Hide()
+frameNPCScrollFrame.ScrollBar:ClearAllPoints()
+frameNPCScrollFrame.ScrollBar:SetPoint("TOPLEFT", frameNPCScrollFrame, "TOPRIGHT", -20, -22)
+frameNPCScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", frameNPCScrollFrame, "BOTTOMRIGHT", -20, 26)
+frameNPCScrollFrame:HookScript("OnScrollRangeChanged", function(self, xrange, yrange)
+    self.ScrollBar:SetShown(floor(yrange) ~= 0)
+end)
+frameNPCScrollFrame:SetScrollChild(frameNPC)
+frameNPCScrollFrame.parent = addonName
+frameNPCScrollFrame.name = " - NPC"
 
 local frameStatusbar = CreateFrame("Frame", nil, UIParent)
 frameStatusbar.anchor = CreateFrame("Frame", nil, frameStatusbar)
@@ -716,7 +733,30 @@ frameVariables.parent = addonName
 frameVariables.name = " - Variables"
 
 local function InitVariablesFrame()
-    
+    frameVariables.panel = CreateFrame("Frame", nil, frameVariables, "TinyTooltipVariablesTemplate")
+    frameVariables.panel:SetPoint("CENTER", 0, -20)
+    frameVariables.panel.export:SetScript("OnClick", function()
+        local json = LibJSON:encode_wow(addon.db)
+        frameVariables.panel.textarea.text:SetText(json)
+        frameVariables.panel.textarea.text:SetFocus(true)
+        frameVariables.panel.textarea.text:HighlightText()
+    end)
+    LibJSON.assert = function() end
+    frameVariables.panel.import:SetScript("OnClick", function()
+        local text = frameVariables.panel.textarea.text:GetText()
+        local data, errormsg = LibJSON:decode_wow(text)
+        if (data and type(data) == "table") then
+            addon:FixNumericKey(data)
+            local db = addon:MergeVariable(BigTipDB, data)
+            BigTipDB = db
+            addon.db = db
+            frameVariables.panel.textarea.text:SetText("")
+            LibEvent:trigger("TINYTOOLTIP_GENERAL_INIT")
+            print("|cffFFE4E1[TinyTooltip]|r|cff00FFFF variables has been imported successfully. |r")
+        else
+            print("|cffFFE4E1[TinyTooltip]|r|cffFF3333 unvalidated variables. |r")
+        end
+    end)
 end
 
 local function InitOptions(list, parent, height)
@@ -746,7 +786,7 @@ end)
 
 InterfaceOptions_AddCategory(frame)
 InterfaceOptions_AddCategory(framePCScrollFrame)
-InterfaceOptions_AddCategory(frameNPC)
+InterfaceOptions_AddCategory(frameNPCScrollFrame)
 InterfaceOptions_AddCategory(frameStatusbar)
 InterfaceOptions_AddCategory(frameSpell)
 InterfaceOptions_AddCategory(frameFont)
@@ -781,23 +821,37 @@ end
 -- DIY Frame 
 ----------------
 
-local diytable = {}
+local diytable, diyPlayerTable = {}, {}
 
-local frame = CreateFrame("Frame", nil, UIParent)
+local frame = CreateFrame("Frame", nil, framePCScrollFrame)
 tinsert(addon.tooltips, frame)
-frame:Hide()
+frame:Show()
 frame:SetFrameStrata("DIALOG")
 frame:SetClampedToScreen(true)
 frame:EnableMouse(true)
-frame:SetMovable(true)
-frame:SetSize(300, 200)
-frame:SetPoint("CENTER", 0, 100)
+--frame:SetMovable(true)
+frame:SetSize(300, 100)
+frame:SetPoint("BOTTOM", framePCScrollFrame, "TOP", 64, 0)
 frame:RegisterForDrag("LeftButton")
 frame:SetScript("OnDragStart", function(self) self:StartMoving() end)
 frame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
-frame.lines, frame.elements = {}, {}
+frame.lines, frame.elements, frame.identity = {}, {}, "diy"
 frame.close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-frame.close:SetPoint("TOPRIGHT", 3, 3)
+frame.close:SetSize(14, 14)
+frame.close:SetPoint("TOPRIGHT", -2, -2)
+frame.close:SetNormalTexture("Interface\\\Buttons\\UI-StopButton")
+frame.close:SetPushedTexture("Interface\\\Buttons\\UI-StopButton")
+frame.close:GetNormalTexture():SetVertexColor(0.9, 0.6, 0)
+frame.close:Hide()
+frame.tips = frame:CreateFontString(nil, "ARTWORK", "GameFontNormalLargeOutline")
+frame.tips:SetPoint("BOTTOM", 0, 6)
+frame.tips:SetFont(frame.tips:GetFont(), 12, "NONE")
+frame.tips:SetText(L["<Drag element to customize the style>"])
+frame.arrow = frame:CreateTexture(nil, "OVERLAY")
+frame.arrow:SetSize(32, 48)
+frame.arrow:SetTexture("Interface\\Buttons\\JumpUpArrow")
+frame.arrow:SetPoint("BOTTOM", framePCScrollFrame, "TOP", 35, -60)
+frame:HookScript("OnShow", function() LibEvent:trigger("tinytooltip:diy:player", "player", true) end)
 
 local DraggingButton, OverButton, OverLine
 
@@ -830,7 +884,7 @@ local function OnDragStop(self)
         OverButton = false
     end
     if (OverLine) then
-        OverLine.border:Hide()
+        OverLine.border:SetAlpha(0)
         for _, v in ipairs(diytable) do
             for i = #v, 1, -1 do
                 if (v[i] == self.key) then
@@ -842,10 +896,23 @@ local function OnDragStop(self)
         tinsert(diytable[OverLine.line], self.key)
         OverLine = false
     end
+    for _, f in ipairs(frame.lines) do
+        f.border:SetAlpha(0)
+    end
     for i = #diytable, 1, -1 do
         if (#diytable[i] == 0) then tremove(diytable, i) end
     end
     LibEvent:trigger("tinytooltip:diy:player", "player", true)
+end
+
+local function OnEnter(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(L[self.key])
+    GameTooltip:Show()
+end
+
+local function OnLeave(self)
+    GameTooltip:Hide()
 end
 
 local function CreateElement(parent, key)
@@ -864,6 +931,8 @@ local function CreateElement(parent, key)
         button:RegisterForDrag("LeftButton")
         button:SetScript("OnDragStart", OnDragStart)
         button:SetScript("OnDragStop", OnDragStop)
+        button:SetScript("OnEnter", OnEnter)
+        button:SetScript("OnLeave", OnLeave)
         button.SetText = function(self, text)
             self.text:SetText(text)
             self:SetWidth(self.text:GetWidth()+4)
@@ -878,11 +947,11 @@ local function CreateLine(parent, lineNumber)
         local line = CreateFrame("Frame", nil, parent)
         line:SetSize(300, 24)
         line.line = lineNumber
-        line.border = CreateFrame("Frame", nil, line, (BackdropTemplateMixin and "BackdropTemplate" or nil))
+        line.border = CreateFrame("Frame", nil, line, BackdropTemplateMixin and "BackdropTemplate")
         line.border:SetAllPoints()
         line.border:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
         line.border:SetBackdropBorderColor(1, 0.9, 0.1)
-        line.border:Hide()
+        line.border:SetAlpha(0)
         parent.lines[lineNumber] = line
     end
     return parent.lines[lineNumber]
@@ -909,13 +978,13 @@ frame:SetScript("OnUpdate", function(self, elasped)
         for i, f in ipairs(self.lines) do
             if (f:IsMouseOver()) then
                 OverLine = f
-                f.border:Show()
+                f.border:SetAlpha(1)
             else
-                f.border:Hide()
+                f.border:SetAlpha(0.2)
             end
         end
     elseif (OverLine) then
-        OverLine.border:Hide()
+        OverLine.border:SetAlpha(0)
         OverLine = false
     end
 end)
@@ -925,10 +994,17 @@ local placeholder = {
     statusAFK = "AFK",
     statusDND = "DND",
     statusDC  = "DC",
+    friendIcon = addon.icons.friend,
+    pvpIcon    = addon.icons.pvp,
+    roleIcon   = addon.icons.DAMAGER,
+    raidIcon   = ICON_LIST[8] .. "0|t",
 }
 setmetatable(placeholder, {__index = function(_, k) return k end})
 
-LibEvent:attachTrigger("tinytooltip:diy:player", function(self, unit, skipDisable)
+LibEvent:attachTrigger("tinytooltip:diy:player", function(self, unit, skipDisable, toggleVisible)
+    if (toggleVisible and frame:IsShown()) then
+        return frame:Hide()
+    end
     local raw = addon:GetUnitInfo(unit)
     local frameWidth, lineWidth, totalLines = 0, 0, 0
     local config, value
@@ -959,22 +1035,32 @@ LibEvent:attachTrigger("tinytooltip:diy:player", function(self, unit, skipDisabl
     end
     totalLines = totalLines + 1
     frame:SetWidth(frameWidth+28)
-    frame:SetHeight(totalLines*24+32)
+    frame:SetHeight(totalLines*24+36)
     for i = 1, totalLines do
         f = CreateLine(frame, i)
         f:Show()
         f:SetWidth(frameWidth)
-        f:SetPoint("TOPLEFT", frame, "TOPLEFT", 14, -(i*25)+25-20)
+        f:SetPoint("TOPLEFT", frame, "TOPLEFT", 14, -(i*25)+25-12)
     end
     while (frame.lines[totalLines+1]) do
         frame.lines[totalLines+1]:Hide()
         totalLines = totalLines + 1
     end
+    if (diytable.factionBig and diytable.factionBig.enable) then
+        frame.BigFactionIcon:SetTexture("Interface\\Timer\\".. raw.factionGroup .."-Logo")
+        frame.BigFactionIcon:Show()
+        frame:SetWidth(frameWidth+48)
+    else
+        frame.BigFactionIcon:Hide()
+    end
+    addon.ColorUnitBorder(frame, diyPlayerTable, raw)
+    addon.ColorUnitBackground(frame, diyPlayerTable, raw)
     frame:Show()
 end)
 
 LibEvent:attachTrigger("tooltip:variables:loaded", function()
     diytable = addon.db.unit.player.elements
+    diyPlayerTable = addon.db.unit.player
 end)
 
 LibEvent:attachTrigger("tooltip:variable:changed", function(self, keystring, value)

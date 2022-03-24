@@ -1,8 +1,8 @@
-## Interface: 20503
+## Interface: 90200
 ## Title: TinyTooltip
 ## Notes: TinyTooltip
 ## Author: M
-## Version: 8.2.1
+## Version: 9.0.8
 ## SavedVariables: BigTipDB
 ## SavedVariablesPerCharacter: TinyTooltipCharacterDB
 
@@ -18,7 +18,9 @@ Item.lua
 Spell.lua
 Quest.lua
 LinkID.lua
+Mount.lua
 SkinFrames.lua
 
+libs\Template.xml
 locales\locales.xml
 Options.lua

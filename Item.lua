@@ -6,39 +6,17 @@ local addon = TinyTooltip
 local function ColorBorder(tip, r, g, b)
     if (addon.db.item.coloredItemBorder) then
         LibEvent:trigger("tooltip.style.border.color", tip, r, g, b)
+    else
+        LibEvent:trigger("tooltip.style.border.color", tip, unpack(addon.db.general.borderColor))
     end
-end
-
-if (GameTooltip_SetBackdropStyle) then
-    hooksecurefunc("GameTooltip_SetBackdropStyle", function(self, style)
-        if (self.style) then
-            if self.SetBackdrop then
-                self:SetBackdrop(nil)
-            elseif self.NineSlice then
-                self.NineSlice:Hide()
-            end
-        end
-    end)
-end
-
-if (SharedTooltip_SetBackdropStyle) then
-    hooksecurefunc("SharedTooltip_SetBackdropStyle", function(self, style, embedded)
-        if (self.style) then
-            if self.SetBackdrop then
-                self:SetBackdrop(nil)
-            elseif self.NineSlice then
-                self.NineSlice:Hide()
-            end
-        end
-    end)
 end
 
 local function ItemIcon(tip, link)
     if (addon.db.item.showItemIcon) then
         local texture = select(10, GetItemInfo(link))
         local text = addon:GetLine(tip,1):GetText()
-        if (texture) then
-            addon:GetLine(tip,1):SetFormattedText("|T%s:18|t %s", texture, text)
+        if (texture and not strfind(text, "^|T")) then
+            addon:GetLine(tip,1):SetFormattedText("|T%s:16:16:0:0:32:32:2:30:2:30|t %s", texture, text)
         end
     end
 end
