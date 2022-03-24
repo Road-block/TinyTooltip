@@ -806,8 +806,10 @@ LibEvent:attachTrigger("tooltip.style.init", function(self, tip)
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
         edgeSize = 14,
     }
-    if (tip.SetBackdrop) then
+    if tip.SetBackdrop then
         tip:SetBackdrop(nil)
+    elseif tip.NineSlice then
+        tip.NineSlice:Hide()
     end
     tip.style = CreateFrame("Frame", nil, tip, BackdropTemplateMixin and "BackdropTemplate" or nil)
     tip.style:SetFrameLevel(tip:GetFrameLevel())
@@ -883,8 +885,12 @@ end)
 
 if (SharedTooltip_SetBackdropStyle) then
     hooksecurefunc("SharedTooltip_SetBackdropStyle", function(self, style, embedded)
-        if (self.style and self.NineSlice) then
-            self.NineSlice:Hide()
+        if (self.style) then
+            if self.SetBackdrop then
+                self:SetBackdrop(nil)
+            elseif self.NineSlice then
+                self.NineSlice:Hide()
+            end
         end
     end)
 end

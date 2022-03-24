@@ -371,13 +371,18 @@ saframe:SetScript("OnHide", function() grid:Hide() end)
 local caframe = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "ThinBorderTemplate,BackdropTemplate" or "ThinBorderTemplate")
 caframe:Hide()
 caframe:SetFrameStrata("DIALOG")
-caframe:SetBackdrop({
-    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    tile = true, tileSize = 8, edgeSize = 16,
-    insets = {left = 4, right = 4, top = 4, bottom = 4}
-})
-caframe:SetBackdropColor(0.2,0.2,0.2,0.85)
+if GameTooltip.NineSlice then
+    caframe:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 8, edgeSize = 16,
+        insets = {left = 4, right = 4, top = 4, bottom = 4}
+    })
+    caframe:SetBackdropColor(GameTooltip.NineSlice:GetCenterColor())
+elseif GameTooltip.GetBackdrop then
+    caframe:SetBackdrop(GameTooltip:GetBackdrop())
+    caframe:SetBackdropColor(GameTooltip:GetBackdropColor())
+end
 caframe:SetSize(200, 200)
 caframe:SetPoint("CENTER")
 caframe:SetClampedToScreen(true)
