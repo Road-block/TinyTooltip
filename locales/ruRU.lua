@@ -57,6 +57,7 @@ addon.L = {
     ["unit.player.elements.guildIndex"]     = "Индекс в гильдии",
     ["unit.player.elements.guildRank"]      = "Ранг в гильдии",
     ["unit.player.elements.guildRealm"]     = "Мир гильдии",
+    ["unit.player.elements.gearScore"]      = "Оценка снаряжения",
     ["unit.player.elements.levelValue"]     = "Уровень числом",
     ["unit.player.elements.factionName"]    = "Название фракции",
     ["unit.player.elements.gender"]         = "Пол",

@@ -506,8 +506,8 @@ function widgets:dropdownslider(parent, config)
     return frame
 end
 
-widgets.filterDropdata = {"none","ininstance","incombat","inraid","samerealm","samecrossrealm","inpvp","inarena","reaction5","reaction6","not ininstance","not incombat","not inraid","not samerealm","not samecrossrealm","not inpvp","not inarena","not reaction5","not reaction6",}
-widgets.colorDropdata = {"default","class","level","reaction","itemQuality","selection","faction",}
+widgets.filterDropdata = {"none","ininstance","incombat","inraid","samerealm","samecrossrealm","samefaction","inpvp","inarena","reaction5","reaction6","not ininstance","not incombat","not inraid","not samerealm","not samecrossrealm","not inpvp","not inarena","not reaction5","not reaction6",}
+widgets.colorDropdata = {"default","class","level","score","reaction","itemQuality","selection","faction",}
 widgets.bgfileDropdata = {"gradual","dark","alpha","rock","marble",}
 widgets.borderDropdata = {"default","angular",}
 widgets.fontDropdata = {"default", "ChatFontNormal", "GameFontNormal", "QuestFont", "CombatLogFont",}
@@ -570,6 +570,7 @@ local options = {
         { keystring = "unit.player.elements.guildRank",   type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.guildRealm",  type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.levelValue",  type = "element", color = true, wildcard = true, filter = true, },
+        { keystring = "unit.player.elements.gearScore",   type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.factionName", type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.gender",      type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.raceName",    type = "element", color = true, wildcard = true, filter = true, },

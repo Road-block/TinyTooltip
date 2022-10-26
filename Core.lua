@@ -7,6 +7,7 @@ TinyTooltip = {}
 
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local LibMedia = LibStub:GetLibrary("LibSharedMedia-3.0", true)
+local LibGS = LibStub:GetLibrary("LibGearScore.1000", true)
 
 local AFK = AFK
 local DND = DND
@@ -317,6 +318,19 @@ function addon:GetUnitSpeed(unit)
     return speed+0.5
 end
 
+function addon:GetUnitGearscore(unit)
+    if (UnitIsPlayer(unit) and UnitIsFriend(unit,"player")) then
+        local guid = UnitGUID(unit)
+        if guid and LibGS then
+            local _, gsdata = LibGS:GetScore(guid)
+            if gsdata then
+                return gsdata.GearScore
+            end
+        end
+    end
+    return 0
+end
+
 -- 頭銜 @param2:true為前綴
 function addon:GetTitle(name, pvpName)
     if (not pvpName) then return end
@@ -394,6 +408,7 @@ function addon:GetUnitInfo(unit)
     t.gender       = self:GetGender(gender)
     t.realm        = realm or GetRealmName()
     t.levelValue   = level >= 0 and level or "??"
+    t.gearScore    = self:GetUnitGearscore(unit)
     t.className    = className
     t.raceName     = raceName
     t.guildName    = guildName
@@ -541,6 +556,15 @@ addon.colorfunc.faction = function(raw)
     end
 end
 
+addon.colorfunc.score = function(raw)
+    if LibGS then
+        local color = LibGS:GetScoreColor(raw.gearScore)
+        return color.r, color.g, color.b, addon:GetHexColor(color)
+    else
+        return 0.1, 0.1, 0.1, "1a1a1a"
+    end
+end
+
 addon.filterfunc.reaction6 = function(raw, reaction)
     return (raw.reaction or 4) >= 6
 end
@@ -584,6 +608,12 @@ end
 addon.filterfunc.sameguild = function(raw)
     local name, _, _, server = GetGuildInfo("player")
     if (name and name == raw.guildName and server == raw.guildRealm) then
+        return true
+    end
+end
+
+addon.filterfunc.samefaction = function(raw)
+    if (raw.factionGroup == UnitFactionGroup("player")) then
         return true
     end
 end

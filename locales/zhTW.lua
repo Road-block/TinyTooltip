@@ -60,6 +60,7 @@ addon.L = {
     ["unit.player.elements.guildIndex"]     = "公會階級數字",
     ["unit.player.elements.guildRank"]      = "公會階級名稱",
     ["unit.player.elements.guildRealm"]     = "公會伺服器",
+    ["unit.player.elements.gearScore"]      = "齿轮分数",
     ["unit.player.elements.levelValue"]     = "等級",
     ["unit.player.elements.factionName"]    = "陣營",
     ["unit.player.elements.gender"]         = "性別",
