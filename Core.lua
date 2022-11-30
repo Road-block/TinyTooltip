@@ -32,6 +32,23 @@ local C_BattleNet_GetAccountInfoByGUID = C_BattleNet and C_BattleNet.GetAccountI
 
 local addon = TinyTooltip
 
+addon.safecolor = function(...)
+    local r,g,b,a = ...
+    if not r then r = 1 end
+    if not g then g = 1 end
+    if not b then b = 1 end
+    if not a then a = 1 end
+    if r<0 then r = 0 end
+    if r>1 then r = 1 end
+    if g<0 then g = 0 end
+    if g>1 then g = 1 end
+    if b<0 then b = 0 end
+    if b>1 then b = 1 end
+    if a<0 then a = 0 end
+    if a>1 then a = 1 end
+    return r,g,b,a
+end
+
 -- language & global vars
 addon.L, addon.G = {}, {}
 setmetatable(addon.L, {__index = function(_, k) return k end})
@@ -864,7 +881,12 @@ LibEvent:attachTrigger("tooltip.style.init", function(self, tip)
     tip.style.mask:SetPoint("TOPLEFT", 3, -3)
     tip.style.mask:SetPoint("BOTTOMRIGHT", tip.style, "TOPRIGHT", -3, -32)
     tip.style.mask:SetBlendMode("ADD")
-    tip.style.mask:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0.9, 0.9, 0.9, 0.4)
+    if tip.style.mask.SetGradientAlpha then
+        tip.style.mask:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0.9, 0.9, 0.9, 0.4)
+    else
+        local minColor, maxColor = CreateColor(0, 0, 0, 0), CreateColor(0.9, 0.9, 0.9, 0.4)
+        tip.style.mask:SetGradient("VERTICAL", minColor, maxColor)
+    end
     tip.style.mask:Hide()
     tip:HookScript("OnShow", function(self) LibEvent:trigger("tooltip:show", self) end)
     tip:HookScript("OnHide", function(self) LibEvent:trigger("tooltip:hide", self) end)

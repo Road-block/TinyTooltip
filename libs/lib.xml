@@ -6,5 +6,6 @@
     <Script file="LibSchedule.lua"/>
     <Script file="LibDropdown.lua"/>
     <Script file="LibGearScore.lua"/>
+    <Script file="LibSharedMedia-3.0.lua"/>
     <Script file="LibJSON.lua"/>
 </Ui>

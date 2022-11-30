@@ -14,6 +14,7 @@ local UIDropDownMenuTemplate = "UIDropDownMenuTemplate"
 local addonName = ...
 local addon = TinyTooltip
 local CopyTable = CopyTable
+local safecolor = addon.safecolor
 
 addon.L = addon.L or {}
 setmetatable(addon.L, { __index = function(self, k)
@@ -169,7 +170,7 @@ function widgets:colorpick(parent, config)
     frame.Text:SetPoint("LEFT", frame, "RIGHT", 5, 0)
     frame.Text:SetText(L[config.keystring])
     frame.Text:SetShown(not config.hidetitle)
-    frame:GetNormalTexture():SetVertexColor(r, g, b, a)
+    frame:GetNormalTexture():SetVertexColor(safecolor(r, g, b, a or 1))
     frame:SetScript("OnClick", function(self)
         local r, g, b, a = self:GetNormalTexture():GetVertexColor()
         local info = {
@@ -182,7 +183,7 @@ function widgets:colorpick(parent, config)
                 g = tonumber(format("%.4f",g))
                 b = tonumber(format("%.4f",b))
                 if (a ~= aa) then
-                    ColorPickerFrame.tipframe:GetNormalTexture():SetVertexColor(r,g,b,a)
+                    ColorPickerFrame.tipframe:GetNormalTexture():SetVertexColor(safecolor(r,g,b,a))
                     SetVariable(ColorPickerFrame.tipframe.keystring, {r,g,b,a})
                 end
             end,
@@ -192,7 +193,7 @@ function widgets:colorpick(parent, config)
                 r = tonumber(format("%.4f",r))
                 g = tonumber(format("%.4f",g))
                 b = tonumber(format("%.4f",b))
-                ColorPickerFrame.tipframe:GetNormalTexture():SetVertexColor(r,g,b,a)
+                ColorPickerFrame.tipframe:GetNormalTexture():SetVertexColor(safecolor(r,g,b,a))
                 if (ColorPickerFrame.tipframe.colortype == "hex") then
                     SetVariable(ColorPickerFrame.tipframe.keystring, addon:GetHexColor(r,g,b))
                 else
@@ -326,10 +327,10 @@ local function CreateAnchorButton(frame, anchorPoint)
         local parent = self:GetParent()
         local cp = GetVariable(parent.cp)
         if (parent[cp]) then
-            parent[cp]:GetNormalTexture():SetVertexColor(1, 1, 1)
+            parent[cp]:GetNormalTexture():SetVertexColor(1, 1, 1, 1)
         end
         SetVariable(parent.cp, self.cp)
-        self:GetNormalTexture():SetVertexColor(1, 0.2, 0.1)
+        self:GetNormalTexture():SetVertexColor(1, 0.2, 0.1, 1)
         StaticFrameOnDragStop(frame)
     end)
     frame[anchorPoint] = button
@@ -431,7 +432,7 @@ function widgets:anchorbutton(parent, config)
             saframe.kx = self.keystring .. ".x"
             saframe.ky = self.keystring .. ".y"
             saframe.cp = self.keystring .. ".p"
-            saframe[GetVariable(saframe.cp) or "BOTTOMRIGHT"]:GetNormalTexture():SetVertexColor(1, 0.2, 0.1)
+            saframe[GetVariable(saframe.cp) or "BOTTOMRIGHT"]:GetNormalTexture():SetVertexColor(1, 0.2, 0.1, 1)
             saframe:SetPoint(GetVariable(saframe.cp) or "BOTTOMRIGHT", UIParent, GetVariable(saframe.cp) or "BOTTOMRIGHT", GetVariable(saframe.kx) or -CONTAINER_OFFSET_X-13, GetVariable(saframe.ky) or CONTAINER_OFFSET_Y)
             saframe:Show()
         elseif (value == "cursor") then
@@ -440,7 +441,7 @@ function widgets:anchorbutton(parent, config)
             caframe.cp = self.keystring .. ".cp"
             caframe.inputx:SetText(GetVariable(caframe.cx) or 0)
             caframe.inputy:SetText(GetVariable(caframe.cy) or 0)
-            caframe[GetVariable(caframe.cp) or "BOTTOM"]:GetNormalTexture():SetVertexColor(1, 0.2, 0.1)
+            caframe[GetVariable(caframe.cp) or "BOTTOM"]:GetNormalTexture():SetVertexColor(1, 0.2, 0.1, 1)
             caframe:Show()
         end
     end)
@@ -847,7 +848,7 @@ frame.close:SetSize(14, 14)
 frame.close:SetPoint("TOPRIGHT", -2, -2)
 frame.close:SetNormalTexture("Interface\\\Buttons\\UI-StopButton")
 frame.close:SetPushedTexture("Interface\\\Buttons\\UI-StopButton")
-frame.close:GetNormalTexture():SetVertexColor(0.9, 0.6, 0)
+frame.close:GetNormalTexture():SetVertexColor(0.9, 0.6, 0, 1)
 frame.close:Hide()
 frame.tips = frame:CreateFontString(nil, "ARTWORK", "GameFontNormalLargeOutline")
 frame.tips:SetPoint("BOTTOM", 0, 6)

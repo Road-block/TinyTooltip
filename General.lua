@@ -8,6 +8,7 @@ local addon = TinyTooltip
 
 BigTipDB = {}
 TinyTooltipCharacterDB = {}
+local safecolor = addon.safecolor
 
 local function ColorStatusBar(self, value)
     if (addon.db.general.statusbarColor == "auto") then
@@ -37,7 +38,7 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
         ItemRefCloseButton:SetPoint("TOPRIGHT", -4, -4)
         ItemRefCloseButton:SetNormalTexture("Interface\\\Buttons\\UI-StopButton")
         ItemRefCloseButton:SetPushedTexture("Interface\\\Buttons\\UI-StopButton")
-        ItemRefCloseButton:GetNormalTexture():SetVertexColor(0.9, 0.6, 0)
+        ItemRefCloseButton:GetNormalTexture():SetVertexColor(0.9, 0.6, 0, 1.0)
     end
     --StatusBar
     local bar = GameTooltipStatusBar
