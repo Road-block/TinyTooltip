@@ -1,8 +1,8 @@
-## Interface: 90200
+## Interface: 30403
 ## Title: TinyTooltip
 ## Notes: TinyTooltip
 ## Author: M
-## Version: 9.0.8
+## Version: 9.0.11
 ## SavedVariables: BigTipDB
 ## SavedVariablesPerCharacter: TinyTooltipCharacterDB
 
